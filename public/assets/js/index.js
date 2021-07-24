@@ -31,7 +31,6 @@ const getNotes = () =>
     headers: {
       'Content-Type': 'application/json',
     },
-    body: JSON.stringify(note),
   });
 
 const saveNote = (note) =>
@@ -54,7 +53,7 @@ const deleteNote = (id) =>
 const renderActiveNote = () => {
   hide(saveNoteBtn);
 
-  if (activeNote.id) {
+  if (activeNote.title) {
     noteTitle.setAttribute('readonly', true);
     noteText.setAttribute('readonly', true);
     noteTitle.value = activeNote.title;
@@ -84,9 +83,10 @@ const handleNoteDelete = (e) => {
   e.stopPropagation();
 
   const note = e.target;
-  const noteId = JSON.parse(note.parentElement.getAttribute('data-note')).id;
+  // had to change id to title bc it was different than the db json
+  const noteId = JSON.parse(note.parentElement.getAttribute('data-note')).title;
 
-  if (activeNote.id === noteId) {
+  if (activeNote.title === noteId) {
     activeNote = {};
   }
 
@@ -119,7 +119,6 @@ const handleRenderSaveBtn = () => {
 
 // Render the list of note titles
 const renderNoteList = async (notes) => {
-  console.log(notes);
   let jsonNotes = await notes.json();
   if (window.location.pathname === '/notes') {
     noteList.forEach((el) => (el.innerHTML = ''));
