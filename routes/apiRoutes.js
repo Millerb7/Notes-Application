@@ -27,6 +27,7 @@ router.post('/notes', (req,res) => {
     if(title && text) {
 
         const newNote = {
+            id: Math.floor((1 + Math.random()) * 0x10000).toString(16).substring(1),
             title,
             text,
         };
@@ -67,8 +68,8 @@ router.post('/notes', (req,res) => {
 // delete note from db json file
 router.delete('/notes/:id', (req,res) => {
 
-    const title = req.params.id;
-    if(title) {
+    const id = req.params.id;
+    if(id) {
         fs.readFile('./db/db.json', (err,data) => {
             if(err) {
                 console.log(err);
@@ -76,20 +77,18 @@ router.delete('/notes/:id', (req,res) => {
                 let newFile = JSON.parse(data);
                 // loop will iterate and delete the all notes with a title that matches :/
                 for(let i = 0; i < newFile.length; i++) {
-                    if(newFile[i].title === title) {
+                    if(newFile[i].id === id) {
                         newFile.splice(i,1);
                         console.log(newFile);
+                        // writes file after deleting notes with matching title
+                        fs.writeFile('./db/db.json', JSON.stringify(newFile, null, 4), err => {
+                            if(err) {
+                                console.log(err);
+                            }
+                        });
+                        res.sendFile(path.join(__dirname,'../public/notes.html'));
                     }
                 }
-
-                // writes file after deleting notes with matching title
-                fs.writeFile('./db/db.json', JSON.stringify(newFile, null, 4), err => {
-                    if(err) {
-                        console.log(err);
-                    }
-                });
-
-                res.sendFile(path.join(__dirname,'../public/notes.html'));
             }
         })
     }
